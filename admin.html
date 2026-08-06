@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PNV — Espace Admin</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bordeaux-deep:#2C0810; --bordeaux:#4A0E1E; --bordeaux-mid:#6B1728;
+    --cream:#F4EEE3; --cream-soft:#EDE4D3; --gold:#C6A253; --gold-light:#E4CE94;
+    --black:#0E0507; --white:#FFFFFF;
+    --serif:'Cormorant Garamond', serif; --sans:'Jost', sans-serif;
+  }
+  *{margin:0; padding:0; box-sizing:border-box;}
+  body{background:var(--cream); color:var(--black); font-family:var(--sans); min-height:100vh;}
+
+  /* Login */
+  .login-wrap{
+    min-height:100vh; display:flex; align-items:center; justify-content:center;
+    background:var(--bordeaux-deep); padding:20px;
+  }
+  .login-box{
+    width:100%; max-width:360px; background:var(--cream); padding:40px 32px;
+    box-shadow:0 30px 70px rgba(0,0,0,.4);
+  }
+  .login-box h1{font-family:var(--serif); font-size:1.6rem; color:var(--bordeaux); text-align:center; margin-bottom:6px;}
+  .login-box p{font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--gold); text-align:center; margin-bottom:26px;}
+  .login-box input{
+    width:100%; border:1px solid #d9cdbd; background:var(--white); padding:12px 14px;
+    font-size:13px; margin-bottom:10px; font-family:var(--sans);
+  }
+  .login-box button{
+    width:100%; border:none; background:var(--bordeaux); color:var(--cream); padding:13px;
+    font-size:11.5px; letter-spacing:.15em; text-transform:uppercase; cursor:pointer; margin-top:8px;
+  }
+  .login-error{
+    background:#fbe9e7; color:#a83232; border:1px solid #f0c4bd; padding:9px 12px;
+    font-size:11px; display:none; margin-top:10px;
+  }
+  .login-error.show{display:block;}
+
+  /* Dashboard */
+  .dash{display:none;}
+  .dash-header{
+    background:var(--bordeaux-deep); color:var(--cream); padding:20px 5vw;
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;
+  }
+  .dash-header h1{font-family:var(--serif); font-size:1.5rem;}
+  .dash-header .sub{font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--gold-light); margin-top:4px;}
+  .dash-header button{
+    background:none; border:1px solid rgba(244,238,227,.35); color:var(--cream); padding:9px 18px;
+    font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; cursor:pointer;
+  }
+  .dash-stats{
+    display:flex; gap:14px; padding:20px 5vw 0; flex-wrap:wrap;
+  }
+  .stat-card{
+    background:var(--white); border:1px solid #e3d8c8; padding:18px 22px; min-width:140px; flex:1;
+  }
+  .stat-num{font-family:var(--serif); font-size:2rem; color:var(--bordeaux);}
+  .stat-label{font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:#8a7a72; margin-top:4px;}
+
+  .orders-wrap{padding:24px 5vw 60px;}
+  .empty-state{text-align:center; padding:60px 10px; color:#8a7a72; font-family:var(--serif); font-style:italic;}
+
+  .order-card{
+    background:var(--white); border:1px solid #e3d8c8; margin-bottom:16px; overflow:hidden;
+  }
+  .order-card.status-nouvelle{border-left:4px solid var(--gold);}
+  .order-head{
+    display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px;
+    padding:18px 22px; background:var(--cream-soft); border-bottom:1px solid #e3d8c8;
+  }
+  .order-num{font-family:var(--serif); font-size:1.2rem; color:var(--bordeaux);}
+  .order-date{font-size:11px; color:#8a7a72; margin-top:2px;}
+  .order-status{
+    font-size:10px; letter-spacing:.1em; text-transform:uppercase; padding:5px 12px;
+    border-radius:12px; background:var(--gold); color:var(--black); font-weight:600; height:fit-content;
+  }
+  .order-body{padding:18px 22px; display:grid; grid-template-columns:1fr 1fr; gap:20px;}
+  .order-section h3{
+    font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--gold); margin-bottom:8px;
+  }
+  .order-section p{font-size:13px; line-height:1.6; color:#3a2c28;}
+  .order-items{list-style:none;}
+  .order-items li{
+    display:flex; justify-content:space-between; font-size:13px; padding:5px 0; border-bottom:1px solid #f0e9dc;
+  }
+  .order-total{
+    font-family:var(--serif); font-size:1.15rem; color:var(--bordeaux); margin-top:10px; text-align:right;
+  }
+  @media(max-width:640px){ .order-body{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+
+<div class="login-wrap" id="loginWrap">
+  <div class="login-box">
+    <h1>PNV</h1>
+    <p>Espace Admin</p>
+    <input type="email" id="adminEmail" placeholder="Email">
+    <input type="password" id="adminPassword" placeholder="Mot de passe">
+    <button id="adminLoginBtn">Se connecter</button>
+    <div class="login-error" id="adminError"></div>
+  </div>
+</div>
+
+<div class="dash" id="dash">
+  <div class="dash-header">
+    <div>
+      <h1>Commandes PNV</h1>
+      <div class="sub">Vue en temps réel</div>
+    </div>
+    <button id="adminLogoutBtn">Déconnexion</button>
+  </div>
+
+  <div class="dash-stats">
+    <div class="stat-card">
+      <div class="stat-num" id="statTotal">0</div>
+      <div class="stat-label">Commandes totales</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="statToday">0</div>
+      <div class="stat-label">Aujourd'hui</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="statRevenue">0</div>
+      <div class="stat-label">Chiffre d'affaires total (FCFA)</div>
+    </div>
+  </div>
+
+  <div class="orders-wrap">
+    <div id="ordersList"><div class="empty-state">Chargement des commandes…</div></div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyDTpXcX1JS8vpC2IvBe0refH1E4ttMG5sE",
+    authDomain: "pnvoff.firebaseapp.com",
+    projectId: "pnvoff",
+    storageBucket: "pnvoff.firebasestorage.app",
+    messagingSenderId: "919831582363",
+    appId: "1:919831582363:web:9f339559c84fccdb6cd83e"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  const ADMIN_EMAIL = 'contact.nvparfums@gmail.com';
+
+  const loginWrap = document.getElementById('loginWrap');
+  const dash = document.getElementById('dash');
+  const adminError = document.getElementById('adminError');
+
+  document.getElementById('adminLoginBtn').addEventListener('click', () => {
+    adminError.classList.remove('show');
+    const email = document.getElementById('adminEmail').value.trim();
+    const pwd = document.getElementById('adminPassword').value;
+    auth.signInWithEmailAndPassword(email, pwd).catch(err => {
+      adminError.textContent = "Email ou mot de passe incorrect.";
+      adminError.classList.add('show');
+    });
+  });
+
+  document.getElementById('adminLogoutBtn').addEventListener('click', () => auth.signOut());
+
+  let unsubOrders = null;
+
+  auth.onAuthStateChanged(user => {
+    if (unsubOrders) { unsubOrders(); unsubOrders = null; }
+
+    if (user && user.email === ADMIN_EMAIL) {
+      loginWrap.style.display = 'none';
+      dash.style.display = 'block';
+      subscribeOrders();
+    } else {
+      dash.style.display = 'none';
+      loginWrap.style.display = 'flex';
+      if (user && user.email !== ADMIN_EMAIL) {
+        adminError.textContent = "Ce compte n'a pas accès à l'espace admin.";
+        adminError.classList.add('show');
+        auth.signOut();
+      }
+    }
+  });
+
+  function fmtPrice(n){ return n.toLocaleString('fr-FR') + ' FCFA'; }
+
+  function subscribeOrders(){
+    unsubOrders = db.collection('orders').orderBy('createdAt', 'desc').onSnapshot(snap => {
+      const orders = [];
+      snap.forEach(d => orders.push({ id: d.id, ...d.data() }));
+      renderOrders(orders);
+    }, err => {
+      document.getElementById('ordersList').innerHTML =
+        `<div class="empty-state">Erreur de chargement : ${err.message}</div>`;
+    });
+  }
+
+  function renderOrders(orders){
+    document.getElementById('statTotal').textContent = orders.length;
+
+    const today = new Date().toDateString();
+    const todayCount = orders.filter(o => o.createdAt && o.createdAt.toDate().toDateString() === today).length;
+    document.getElementById('statToday').textContent = todayCount;
+
+    const revenue = orders.reduce((s, o) => s + (o.total || 0), 0);
+    document.getElementById('statRevenue').textContent = revenue.toLocaleString('fr-FR');
+
+    const wrap = document.getElementById('ordersList');
+    if (orders.length === 0) {
+      wrap.innerHTML = '<div class="empty-state">Aucune commande pour l\'instant.</div>';
+      return;
+    }
+
+    wrap.innerHTML = orders.map(o => {
+      const date = o.createdAt ? o.createdAt.toDate().toLocaleString('fr-FR', { day:'2-digit', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—';
+      const itemsHtml = (o.items || []).map(it =>
+        `<li><span>${it.name} × ${it.qty}</span><span>${fmtPrice(it.price * it.qty)}</span></li>`
+      ).join('');
+
+      return `
+      <div class="order-card status-${o.status || 'nouvelle'}">
+        <div class="order-head">
+          <div>
+            <div class="order-num">${o.invoiceNumber || o.id}</div>
+            <div class="order-date">${date}</div>
+          </div>
+          <div class="order-status">${o.status || 'nouvelle'}</div>
+        </div>
+        <div class="order-body">
+          <div class="order-section">
+            <h3>Cliente</h3>
+            <p>${o.customer?.name || '—'}<br>${o.customer?.email || '—'}<br>${o.customer?.phone || '—'}</p>
+            <h3 style="margin-top:14px;">Livraison</h3>
+            <p>${o.city || ''}, ${o.destination || '—'}<br>${o.address || '—'}<br><em>${o.deliveryEstimate || '—'}</em></p>
+            <h3 style="margin-top:14px;">Paiement</h3>
+            <p>${o.paymentMethod || '—'}</p>
+          </div>
+          <div class="order-section">
+            <h3>Articles</h3>
+            <ul class="order-items">${itemsHtml}</ul>
+            <div class="order-total">${fmtPrice(o.total || 0)}</div>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+</script>
+</body>
+</html>
