@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PNV — Test simplifié</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bordeaux:#4A0E1E; --cream:#F4EEE3; --gold:#C6A253; --black:#0E0507; --white:#FFFFFF;
+    --serif:'Cormorant Garamond', serif; --sans:'Jost', sans-serif;
+  }
+  *{margin:0; padding:0; box-sizing:border-box;}
+  body{background:var(--cream); color:var(--black); font-family:var(--sans); padding-bottom:60px;}
+
+  header{
+    background:var(--bordeaux); color:var(--cream); padding:16px 5vw;
+    display:flex; justify-content:space-between; align-items:center; position:relative;
+  }
+  header h1{font-family:var(--serif); font-size:1.4rem;}
+  header button{
+    background:none; border:1px solid var(--gold); color:var(--cream); padding:8px 16px;
+    font-size:11px; letter-spacing:.1em; text-transform:uppercase; cursor:pointer;
+  }
+
+  .banner{background:var(--gold); color:var(--black); text-align:center; padding:6px; font-size:11px;}
+
+  main{max-width:480px; margin:0 auto; padding:24px 5vw;}
+
+  .card{background:var(--white); border:1px solid #e3d8c8; padding:20px; margin-bottom:18px;}
+  .card h2{font-family:var(--serif); font-size:1.3rem; color:var(--bordeaux); margin-bottom:12px;}
+
+  input, select{
+    width:100%; border:1px solid #d9cdbd; background:var(--white); padding:10px 12px;
+    font-size:13px; margin-bottom:8px; font-family:var(--sans);
+  }
+  label.radio{display:flex; align-items:center; gap:8px; margin-bottom:8px; font-size:13px;}
+  button.btn{
+    width:100%; border:none; background:var(--bordeaux); color:var(--cream); padding:12px;
+    font-size:12px; letter-spacing:.1em; text-transform:uppercase; cursor:pointer; margin-top:6px;
+  }
+  button.btn:disabled{background:#ccc; cursor:not-allowed;}
+  .link-btn{background:none; border:none; color:var(--bordeaux); text-decoration:underline; font-size:12px; cursor:pointer;}
+
+  .product{display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #f0e9dc;}
+  .product-name{font-family:var(--serif); font-size:1.1rem;}
+  .product-price{font-size:12px; color:#8a7a72;}
+  .product-actions{display:flex; gap:8px;}
+  .product-actions button{
+    border:1px solid var(--bordeaux); background:none; color:var(--bordeaux); padding:6px 10px;
+    font-size:10px; cursor:pointer; text-transform:uppercase;
+  }
+  .product-actions button.active{background:var(--bordeaux); color:var(--cream);}
+
+  .cart-line{display:flex; justify-content:space-between; padding:6px 0; font-size:13px;}
+  .total{font-family:var(--serif); font-size:1.2rem; color:var(--bordeaux); text-align:right; margin-top:10px;}
+
+  .msg{font-size:12px; padding:8px; margin-bottom:8px; display:none;}
+  .msg.error{background:#fbe9e7; color:#a83232; display:block;}
+  .msg.success{background:#eaf3ea; color:#3a6b3a; display:block;}
+
+  .invoice{background:var(--white); border:2px solid var(--gold); padding:24px; margin-top:16px;}
+  .invoice h3{font-family:var(--serif); color:var(--bordeaux); text-align:center; margin-bottom:14px;}
+  .invoice p{font-size:12px; line-height:1.7;}
+  .invoice table{width:100%; margin:12px 0; font-size:12px;}
+  .invoice td{padding:4px 0; border-bottom:1px solid #f0e9dc;}
+
+  @media print{
+    body *{visibility:hidden;}
+    #invoiceBlock, #invoiceBlock *{visibility:visible;}
+    #invoiceBlock{position:fixed; top:0; left:0; width:100%;}
+  }
+</style>
+</head>
+<body>
+
+<div class="banner">🧪 Version test simplifiée — sans décor, juste les fonctions essentielles</div>
+
+<header>
+  <h1>PNV — Test</h1>
+  <div id="headerAuthArea">
+    <button id="logoutBtn" style="display:none;">Se déconnecter</button>
+  </div>
+</header>
+
+<main>
+
+  <div class="msg" id="globalMsg"></div>
+
+  <!-- COMPTE -->
+  <div class="card" id="authCard">
+    <div id="loggedOutView">
+      <h2 id="authTitle">Créer un compte</h2>
+      <input type="text" id="name" placeholder="Nom complet">
+      <input type="email" id="email" placeholder="Email">
+      <input type="password" id="password" placeholder="Mot de passe (8+ car., 1 maj., 1 chiffre, 1 spécial)">
+      <button class="btn" id="authSubmitBtn">Créer mon compte</button>
+      <p style="text-align:center; margin-top:10px; font-size:12px;">
+        <span id="authSwitchLabel">Déjà un compte ?</span>
+        <button class="link-btn" id="authSwitchBtn">Se connecter</button>
+      </p>
+    </div>
+    <div id="loggedInView" style="display:none;">
+      <h2>Bonjour <span id="userName">—</span></h2>
+      <p style="font-size:12px; color:#8a7a72;" id="userEmail">—</p>
+    </div>
+  </div>
+
+  <!-- PRODUITS -->
+  <div class="card">
+    <h2>Parfums</h2>
+    <div class="product" data-id="sala" data-name="Sala" data-price="35000">
+      <div>
+        <div class="product-name">Sala</div>
+        <div class="product-price">35 000 FCFA</div>
+      </div>
+      <div class="product-actions">
+        <button class="fav-btn">♡ Favori</button>
+        <button class="add-cart">+ Panier</button>
+      </div>
+    </div>
+    <div class="product" data-id="intense" data-name="Intense" data-price="35000">
+      <div>
+        <div class="product-name">Intense</div>
+        <div class="product-price">35 000 FCFA</div>
+      </div>
+      <div class="product-actions">
+        <button class="fav-btn">♡ Favori</button>
+        <button class="add-cart">+ Panier</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAVORIS -->
+  <div class="card">
+    <h2>Mes favoris</h2>
+    <div id="favList" style="font-size:13px; color:#8a7a72;">Aucun favori.</div>
+  </div>
+
+  <!-- PANIER -->
+  <div class="card">
+    <h2>Mon panier</h2>
+    <div id="cartList" style="font-size:13px; color:#8a7a72;">Panier vide.</div>
+    <div class="total" id="cartTotal" style="display:none;">0 FCFA</div>
+  </div>
+
+  <!-- CHECKOUT -->
+  <div class="card">
+    <h2>Commander</h2>
+    <label class="radio"><input type="radio" name="pay" value="Espèces" checked> Espèces à la livraison</label>
+    <label class="radio"><input type="radio" name="pay" value="Mobile Money"> Mobile Money à la livraison</label>
+    <button class="btn" id="orderBtn">Confirmer la commande</button>
+  </div>
+
+  <!-- FACTURE -->
+  <div class="invoice" id="invoiceBlock" style="display:none;">
+    <h3>Facture PNV</h3>
+    <p><strong>N° :</strong> <span id="invNum">—</span><br>
+       <strong>Date :</strong> <span id="invDate">—</span><br>
+       <strong>Client :</strong> <span id="invCustomer">—</span></p>
+    <table id="invTable"></table>
+    <div class="total" id="invTotal">0 FCFA</div>
+    <p style="margin-top:10px;"><strong>Paiement :</strong> <span id="invPay">—</span></p>
+    <button class="btn" onclick="window.print()">Imprimer / Télécharger</button>
+  </div>
+
+</main>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyDTpXcX1JS8vpC2IvBe0refH1E4ttMG5sE",
+    authDomain: "pnvoff.firebaseapp.com",
+    projectId: "pnvoff",
+    storageBucket: "pnvoff.firebasestorage.app",
+    messagingSenderId: "919831582363",
+    appId: "1:919831582363:web:9f339559c84fccdb6cd83e"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  let currentUser = null;
+  let cart = {};
+  let favorites = {};
+  let isLoginMode = false;
+
+  function fmtPrice(n){ return n.toLocaleString('fr-FR') + ' FCFA'; }
+  function showMsg(text, type){
+    const m = document.getElementById('globalMsg');
+    m.textContent = text;
+    m.className = 'msg ' + type;
+    setTimeout(() => { m.className = 'msg'; }, 3000);
+  }
+
+  // ---- Bascule inscription / connexion ----
+  document.getElementById('authSwitchBtn').addEventListener('click', () => {
+    isLoginMode = !isLoginMode;
+    document.getElementById('authTitle').textContent = isLoginMode ? 'Se connecter' : 'Créer un compte';
+    document.getElementById('authSubmitBtn').textContent = isLoginMode ? 'Se connecter' : 'Créer mon compte';
+    document.getElementById('authSwitchLabel').textContent = isLoginMode ? 'Pas de compte ?' : 'Déjà un compte ?';
+    document.getElementById('authSwitchBtn').textContent = isLoginMode ? 'Créer un compte' : 'Se connecter';
+    document.getElementById('name').style.display = isLoginMode ? 'none' : 'block';
+  });
+
+  document.getElementById('authSubmitBtn').addEventListener('click', () => {
+    const email = document.getElementById('email').value.trim();
+    const pwd = document.getElementById('password').value;
+    if (!email || !pwd) { showMsg('Remplis email et mot de passe.', 'error'); return; }
+
+    if (isLoginMode) {
+      auth.signInWithEmailAndPassword(email, pwd)
+        .catch(err => showMsg(err.message, 'error'));
+    } else {
+      const name = document.getElementById('name').value.trim();
+      if (!name) { showMsg('Le nom est requis.', 'error'); return; }
+      auth.createUserWithEmailAndPassword(email, pwd)
+        .then(cred => db.collection('users').doc(cred.user.uid).set({ name, email }))
+        .catch(err => showMsg(err.message, 'error'));
+    }
+  });
+
+  document.getElementById('logoutBtn').addEventListener('click', () => auth.signOut());
+
+  let unsubCart = null, unsubFav = null;
+
+  auth.onAuthStateChanged(async (user) => {
+    if (unsubCart) unsubCart();
+    if (unsubFav) unsubFav();
+
+    if (user) {
+      let profile = {};
+      try {
+        const snap = await db.collection('users').doc(user.uid).get();
+        profile = snap.exists ? snap.data() : {};
+      } catch(e){}
+      currentUser = { uid: user.uid, name: profile.name || user.email, email: user.email };
+
+      document.getElementById('loggedOutView').style.display = 'none';
+      document.getElementById('loggedInView').style.display = 'block';
+      document.getElementById('logoutBtn').style.display = 'inline-block';
+      document.getElementById('userName').textContent = currentUser.name;
+      document.getElementById('userEmail').textContent = currentUser.email;
+
+      unsubCart = db.collection('users').doc(user.uid).collection('cart').onSnapshot(snap => {
+        cart = {}; snap.forEach(d => cart[d.id] = d.data());
+        renderCart();
+      });
+      unsubFav = db.collection('users').doc(user.uid).collection('favorites').onSnapshot(snap => {
+        favorites = {}; snap.forEach(d => favorites[d.id] = d.data());
+        renderFav();
+      });
+    } else {
+      currentUser = null; cart = {}; favorites = {};
+      document.getElementById('loggedOutView').style.display = 'block';
+      document.getElementById('loggedInView').style.display = 'none';
+      document.getElementById('logoutBtn').style.display = 'none';
+      renderCart(); renderFav();
+    }
+  });
+
+  // ---- Favoris ----
+  document.querySelectorAll('.fav-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (!currentUser) { showMsg('Connecte-toi pour ajouter un favori.', 'error'); return; }
+      const p = btn.closest('.product');
+      const id = p.dataset.id;
+      const ref = db.collection('users').doc(currentUser.uid).collection('favorites').doc(id);
+      if (favorites[id]) ref.delete();
+      else ref.set({ id, name: p.dataset.name, price: Number(p.dataset.price) });
+    });
+  });
+
+  function renderFav(){
+    const wrap = document.getElementById('favList');
+    const items = Object.values(favorites);
+    wrap.innerHTML = items.length === 0 ? 'Aucun favori.' :
+      items.map(it => `${it.name} — ${fmtPrice(it.price)}`).join('<br>');
+  }
+
+  // ---- Panier ----
+  document.querySelectorAll('.add-cart').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (!currentUser) { showMsg('Connecte-toi pour ajouter au panier.', 'error'); return; }
+      const p = btn.closest('.product');
+      const id = p.dataset.id;
+      const existingQty = cart[id] ? cart[id].qty : 0;
+      db.collection('users').doc(currentUser.uid).collection('cart').doc(id)
+        .set({ id, name: p.dataset.name, price: Number(p.dataset.price), qty: existingQty + 1 });
+      showMsg(p.dataset.name + ' ajouté au panier', 'success');
+    });
+  });
+
+  function renderCart(){
+    const wrap = document.getElementById('cartList');
+    const totalEl = document.getElementById('cartTotal');
+    const items = Object.values(cart);
+    if (items.length === 0) {
+      wrap.innerHTML = 'Panier vide.';
+      totalEl.style.display = 'none';
+      return;
+    }
+    let total = 0;
+    wrap.innerHTML = items.map(it => {
+      total += it.price * it.qty;
+      return `<div class="cart-line"><span>${it.name} × ${it.qty}</span><span>${fmtPrice(it.price*it.qty)}</span></div>`;
+    }).join('');
+    totalEl.textContent = fmtPrice(total);
+    totalEl.style.display = 'block';
+  }
+
+  // ---- Commande + facture ----
+  document.getElementById('orderBtn').addEventListener('click', () => {
+    if (!currentUser) { showMsg('Connecte-toi pour commander.', 'error'); return; }
+    const items = Object.values(cart);
+    if (items.length === 0) { showMsg('Ton panier est vide.', 'error'); return; }
+
+    const total = items.reduce((s,it) => s + it.price*it.qty, 0);
+    const invNum = 'PNV-' + Date.now().toString().slice(-6);
+    const payMethod = document.querySelector('input[name="pay"]:checked').value;
+    const dateStr = new Date().toLocaleDateString('fr-FR', { day:'2-digit', month:'long', year:'numeric' });
+
+    document.getElementById('invNum').textContent = invNum;
+    document.getElementById('invDate').textContent = dateStr;
+    document.getElementById('invCustomer').textContent = currentUser.name + ' — ' + currentUser.email;
+    document.getElementById('invTable').innerHTML = items.map(it =>
+      `<tr><td>${it.name} × ${it.qty}</td><td style="text-align:right;">${fmtPrice(it.price*it.qty)}</td></tr>`
+    ).join('');
+    document.getElementById('invTotal').textContent = fmtPrice(total);
+    document.getElementById('invPay').textContent = payMethod;
+    document.getElementById('invoiceBlock').style.display = 'block';
+
+    const batch = db.batch();
+    const cartCol = db.collection('users').doc(currentUser.uid).collection('cart');
+    cartCol.get().then(snap => {
+      snap.forEach(d => batch.delete(d.ref));
+      batch.commit();
+    });
+
+    showMsg('Commande confirmée !', 'success');
+  });
+</script>
+</body>
+</html>
